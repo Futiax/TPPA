@@ -1,19 +1,18 @@
 const player = document.getElementById("player");
-const btn = document.getElementById("fs-btn");
 const skipBtn = document.getElementById("skip-btn");
+const video = document.getElementById("video");
+const startBtn = document.getElementById("start-btn");
 
 const TARGET_URL =
     "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Bitwise_AND";
 
-async function requestFs() {
-    if (!document.fullscreenElement && player.requestFullscreen) {
-        try {
-            await player.requestFullscreen();
-            btn.style.display = "none";
-        } catch {
-            // Certains navigateurs exigent un geste utilisateur
-        }
-    }
+let skipStarted = false;
+let started = false;
+
+function startSkipOnce() {
+    if (skipStarted) return;
+    skipStarted = true;
+    setupSkipButton();
 }
 
 function setupSkipButton() {
@@ -36,12 +35,36 @@ function setupSkipButton() {
     }, 1000);
 }
 
-window.addEventListener("load", () => {
-    setupSkipButton();
-    player.src = TARGET_URL;
-});
+async function enterFullscreen() {
+    if (!document.fullscreenElement && player.requestFullscreen) {
+        try {
+            await player.requestFullscreen();
+        } catch {}
+    }
+}
 
-btn.addEventListener("click", requestFs);
+async function startExperience() {
+    if (started) return;
+    started = true;
+
+    startSkipOnce();
+    video.muted = false;
+    await video.play().catch(() => {});
+    await enterFullscreen();
+    startBtn.hidden = true;
+}
+
+function bindStartOnUserGesture() {
+    const options = { once: true };
+    window.addEventListener("pointerdown", startExperience, options);
+    window.addEventListener("touchstart", startExperience, options);
+    window.addEventListener("keydown", startExperience, options);
+}
+
+window.addEventListener("load", bindStartOnUserGesture);
+
 skipBtn.addEventListener("click", () => {
     window.location.href = TARGET_URL;
 });
+
+startBtn.addEventListener("click", startExperience);
