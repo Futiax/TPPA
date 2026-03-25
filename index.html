@@ -1,19 +1,2519 @@
 <!doctype html>
-<html lang="fr">
+<html>
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link href="style.css" rel="stylesheet" />
-        <title>TP Poisson d'avril</title>
-    </head>
-    <body>
-        <main id="player">
-            <video id="video" loop playsinline>
-                <source src="video.webm" type="video/webm" />
-                Votre navigateur ne supporte pas la vidéo.
-            </video>
+        <title>
+            TP n&deg;13 &colon; Cryptographie et fonctions de compression &lpar;Mini-MD5&rpar;
+        </title>
+        <style>
+            /* From extension vscode.github */
+            /*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
-            <button id="start-btn" class="start-btn" type="button">Démarrer avec son</button>
+            .vscode-dark img[src$="\#gh-light-mode-only"],
+            .vscode-light img[src$="\#gh-dark-mode-only"],
+            .vscode-high-contrast:not(.vscode-high-contrast-light) img[src$="\#gh-light-mode-only"],
+            .vscode-high-contrast-light img[src$="\#gh-dark-mode-only"] {
+                display: none;
+            }
+        </style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css"
+        />
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu",
+                    "Droid Sans", sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+            .task-list-item {
+                list-style-type: none;
+            }
+
+            .task-list-item-checkbox {
+                margin-left: -20px;
+                vertical-align: middle;
+                pointer-events: none;
+            }
+        </style>
+        <style>
+            :root {
+                --color-note: #0969da;
+                --color-tip: #1a7f37;
+                --color-warning: #9a6700;
+                --color-severe: #bc4c00;
+                --color-caution: #d1242f;
+                --color-important: #8250df;
+            }
+        </style>
+        <style>
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --color-note: #2f81f7;
+                    --color-tip: #3fb950;
+                    --color-warning: #d29922;
+                    --color-severe: #db6d28;
+                    --color-caution: #f85149;
+                    --color-important: #a371f7;
+                }
+            }
+        </style>
+        <style>
+            .markdown-alert {
+                padding: 0.5rem 1rem;
+                margin-bottom: 16px;
+                color: inherit;
+                border-left: 0.25em solid #888;
+            }
+
+            .markdown-alert > :first-child {
+                margin-top: 0;
+            }
+
+            .markdown-alert > :last-child {
+                margin-bottom: 0;
+            }
+
+            .markdown-alert .markdown-alert-title {
+                display: flex;
+                font-weight: 500;
+                align-items: center;
+                line-height: 1;
+            }
+
+            .markdown-alert .markdown-alert-title .octicon {
+                margin-right: 0.5rem;
+                display: inline-block;
+                overflow: visible !important;
+                vertical-align: text-bottom;
+                fill: currentColor;
+            }
+
+            .markdown-alert.markdown-alert-note {
+                border-left-color: var(--color-note);
+            }
+
+            .markdown-alert.markdown-alert-note .markdown-alert-title {
+                color: var(--color-note);
+            }
+
+            .markdown-alert.markdown-alert-important {
+                border-left-color: var(--color-important);
+            }
+
+            .markdown-alert.markdown-alert-important .markdown-alert-title {
+                color: var(--color-important);
+            }
+
+            .markdown-alert.markdown-alert-warning {
+                border-left-color: var(--color-warning);
+            }
+
+            .markdown-alert.markdown-alert-warning .markdown-alert-title {
+                color: var(--color-warning);
+            }
+
+            .markdown-alert.markdown-alert-tip {
+                border-left-color: var(--color-tip);
+            }
+
+            .markdown-alert.markdown-alert-tip .markdown-alert-title {
+                color: var(--color-tip);
+            }
+
+            .markdown-alert.markdown-alert-caution {
+                border-left-color: var(--color-caution);
+            }
+
+            .markdown-alert.markdown-alert-caution .markdown-alert-title {
+                color: var(--color-caution);
+            }
+        </style>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="tp-n13--cryptographie-et-fonctions-de-compression-mini-md5">
+            TP n°13 : Cryptographie et fonctions de compression (Mini-MD5)
+        </h1>
+        <p>
+            <strong>Objectif :</strong> Implémenter une version simplifiée de l'algorithme de
+            hachage MD5 afin de sécuriser le distributeur de sardines d'Alexis (l'illustre pingouin
+            mascotte de notre MP2I). Il est vital d'éviter qu'un pirate ne le sur-nourrisse !
+            <strong>Contrainte :</strong> Utiliser exclusivement le <code>Makefile</code> fourni
+            pour garantir une optimisation maximale des variables d'état (et résister aux attaques
+            venues de la banquise).
+        </p>
+        <ul>
+            <li>Analyse de l'impact des constantes numériques sur le système digestif d'Alexis.</li>
+            <li>
+                Utilisation d'un environnement de compilation hautement sécurisé sous normes
+                strictes &quot;Mascotte Protégée&quot;.
+            </li>
+        </ul>
+        <hr />
+        <h2 id="consignes-préliminaires">Consignes préliminaires</h2>
+        <p>
+            Pour ce TP, un environnement de compilation spécifique a été mis en place afin de
+            garantir l'intégrité de vos exécutables et d'optimiser la gestion des types booléens sur
+            l'architecture cible.
+        </p>
+        <div class="markdown-alert markdown-alert-warning">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-alert mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                    ></path></svg
+                >Warning
+            </p>
+            <p>
+                Vous <strong>devez obligatoirement</strong> utiliser le
+                <code>Makefile</code> fourni. Toute tentative de compilation manuelle via
+                <code>gcc</code> directement ne respectera pas les couches d'abstraction nécessaires
+                à la validation des exercices.
+            </p>
+        </div>
+        <p><strong>Commandes de build :</strong></p>
+        <ul>
+            <li>
+                <code>make build</code> : Compile votre fichier <code>tp.c</code> en l'exécutable
+                <code>hash_tp</code>.
+            </li>
+            <li><code>make clean</code> : Réinitialise l'environnement de travail.</li>
+        </ul>
+        <hr />
+        <h2 id="0-échauffement">0. Échauffement</h2>
+        <p>
+            Avant d'implémenter la structure de hachage pour Alexis, nous allons valider que le sas
+            de sécurité de la banquise (la pile de compilation) est bien étanche avec quelques
+            fonctions de base.
+        </p>
+        <h3 id="exercice-1--échauffement">Exercice 1 : Échauffement</h3>
+        <p>
+            Dans votre fichier <code>tp.c</code>, implémentez une fonction
+            <code>bool is_42(int n)</code> qui renvoie <code>true</code> si l'entier passé en
+            paramètre est égal à 42, et <code>false</code> sinon.
+        </p>
+        <pre><code class="language-c"><span class="hljs-type">bool</span> <span class="hljs-title function_">is_42</span><span class="hljs-params">(<span class="hljs-type">int</span> n)</span> {
+    <span class="hljs-comment">// À compléter</span>
+}
+</code></pre>
+        <ul>
+            <li>
+                <strong>Test :</strong> Dans votre <code>main</code>, appelez
+                <code>is_42(42)</code>.
+                <div class="markdown-alert markdown-alert-note">
+                    <p class="markdown-alert-title">
+                        <svg
+                            class="octicon octicon-info mr-2"
+                            viewBox="0 0 16 16"
+                            version="1.1"
+                            width="16"
+                            height="16"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                            ></path></svg
+                        >Note
+                    </p>
+                    <p>
+                        Si vos <code>if (condition == true)</code> se comportent de manière opposée
+                        (comme un <code>if(false)</code>), c'est probablement dû au champ magnétique
+                        du froid ambiant de la MP2I qui inverse la polarité de la &quot;logique
+                        CMOS&quot; locale. Essayez de coder &quot;à l'envers&quot; pour compenser ce
+                        curieux phénomène glacé !
+                    </p>
+                </div>
+            </li>
+        </ul>
+        <hr />
+        <h3 id="exercice-2--insertion-sécurisée">Exercice 2 : Insertion sécurisée</h3>
+        <p>
+            Implémentez la fonction <code>bool is_input_safe(const char* key)</code> pour vérifier
+            le code secret d'accès aux sardines.
+        </p>
+        <div class="markdown-alert markdown-alert-tip">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-light-bulb mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"
+                    ></path></svg
+                >Tip
+            </p>
+            <p>
+                <strong>Rappel sur les <code>char*</code> :</strong> En C, une chaîne de caractères
+                (<code>char*</code>) est un simple tableau contenant des caractères (des octets), et
+                qui se termine <strong>toujours</strong> par un caractère invisible valant zéro : le
+                caractère terminal <code>'\0'</code>. C'est grâce à lui que les fonctions de la libc
+                savent où la chaîne s'arrête en mémoire.
+            </p>
+        </div>
+        <pre><code class="language-c"><span class="hljs-type">bool</span> <span class="hljs-title function_">is_input_safe</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* s)</span> {
+    <span class="hljs-comment">// À COMPLÉTER :</span>
+}
+</code></pre>
+        <p>
+            <strong>Contrainte :</strong> La fonction doit retourner <code>true</code> si la chaîne
+            est valide pour nourrir Alexis, <code>false</code> sinon. Une chaîne est considérée
+            valide si :
+        </p>
+        <ul>
+            <li>Elle n'est pas <code>NULL</code></li>
+            <li>Sa longueur est inférieure ou égale à <strong>10</strong></li>
+        </ul>
+        <p>
+            Appelez <code>is_input_safe(key)</code> avant toute opération. Si la fonction renvoie
+            <code>false</code>, l'insertion doit être annulée avec un message d'erreur.
+        </p>
+        <div class="markdown-alert markdown-alert-note">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-info mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                    ></path></svg
+                >Note
+            </p>
+            <p>
+                Si vous constatez que des chaînes valides sont rejetées par le sas, il est possible
+                que le froid ambiant ait gelé les constantes, transformant parfois la base 10 en
+                base hexadécimale... prudence avec vos nombres !
+            </p>
+        </div>
+        <h2 id="i-utilitaires-de-bitwise-et-prédicats">I. Utilitaires de Bitwise et Prédicats</h2>
+        <h3 id="exercice-1-rotation-circulaire-left-rotate">
+            Exercice 1. Rotation Circulaire (Left Rotate)
+        </h3>
+        <p><strong>Exemples de décalage classique (normal bitshift) :</strong></p>
+        <ul>
+            <li>
+                <strong>Décalage à gauche (<code>&lt;&lt;</code>)</strong> :
+                <code>0b0011 &lt;&lt; 1</code> donne <code>0b0110</code>. Les bits glissent vers la
+                gauche, un <code>0</code> entre par la droite et le bit sortant à gauche est
+                irrémédiablement perdu (mangé par un ours polaire).
+            </li>
+            <li>
+                <strong>Décalage à droite (<code>&gt;&gt;</code>)</strong> :
+                <code>0b1011 &gt;&gt; 1</code> donne <code>0b0101</code>.
+            </li>
+        </ul>
+        <p>
+            Contrairement au décalage de bits classique où les bits sortants sont détruits, la
+            <strong>rotation circulaire</strong> sur 32 bits réinjecte les bits expulsés à gauche
+            vers la droite de la variable (comme un pingouin qui glisse sur la glace et revient par
+            l'autre côté).
+        </p>
+        <p>
+            <strong
+                >Visualisation d'un <code>ROTL</code> de 10 bits sur une variable
+                <code>uint32_t</code> :</strong
+            >
+        </p>
+        <img src="./rotlf.svg" />
+        <p>La formule standard pour une architecture 32 bits est :</p>
+        <p class="katex-block">
+            <span class="katex-display"
+                ><span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"
+                            ><semantics
+                                ><mrow
+                                    ><mi>R</mi><mi>O</mi><mi>T</mi><mi>L</mi
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo
+                                    ><mi>s</mi><mo stretchy="false">)</mo><mo>=</mo
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo>≪</mo><mi>s</mi
+                                    ><mo stretchy="false">)</mo><mo>∨</mo><mo stretchy="false">(</mo
+                                    ><mi>x</mi><mo>≫</mo><mo stretchy="false">(</mo><mn>32</mn
+                                    ><mo>−</mo><mi>s</mi><mo stretchy="false">)</mo
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >ROTL(x, s) = (x \ll s) \lor (x \gg (32 - s))
+                                </annotation></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.13889em">ROT</span
+                            ><span class="mord mathnormal">L</span><span class="mopen">(</span
+                            ><span class="mord mathnormal">x</span><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal">s</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">≪</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal">s</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∨</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">≫</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord">32</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">−</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal">s</span
+                            ><span class="mclose">))</span></span
+                        ></span
+                    ></span
+                ></span
+            >
+        </p>
+        <p>
+            <strong>Travail à faire :</strong> Implémentez la fonction
+            <code>uint32_t left_rotate(uint32_t x, uint32_t s)</code>.
+        </p>
+        <ul>
+            <li>
+                <strong>Validation :</strong> Testez avec <code>x = 1</code> et <code>s = 10</code>.
+                Le résultat attendu est 1024.
+                <div class="markdown-alert markdown-alert-note">
+                    <p class="markdown-alert-title">
+                        <svg
+                            class="octicon octicon-info mr-2"
+                            viewBox="0 0 16 16"
+                            version="1.1"
+                            width="16"
+                            height="16"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                            ></path></svg
+                        >Note
+                    </p>
+                    <p>
+                        Si votre testeur indique une erreur d'alignement, revérifiez l'ordre de
+                        priorité des opérateurs binaires <code>|</code> et
+                        <code>&lt;&lt;</code> dans votre code.
+                    </p>
+                </div>
+            </li>
+        </ul>
+        <h3 id="exercice-2-fonctions-auxiliaires-non-linéaires-cœur-logique">
+            Exercice 2. Fonctions Auxiliaires Non-Linéaires (Cœur Logique)
+        </h3>
+        <h3 id="prérequis--opérations-bit-à-bit-bitwise-en-c">
+            Prérequis : Opérations Bit-à-Bit (Bitwise) en C
+        </h3>
+        <p>
+            Avant d'implémenter les fonctions de compression, il est indispensable de maîtriser les
+            opérateurs <strong>bit-à-bit</strong>.
+        </p>
+        <div class="markdown-alert markdown-alert-important">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-report mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                    ></path></svg
+                >Important
+            </p>
+            <p>
+                En C, il ne faut surtout pas confondre les opérateurs
+                <strong>logiques</strong> (<code>&amp;&amp;</code>, <code>||</code>, <code>!</code>)
+                qui évaluent des conditions globales (vrai/faux), avec les opérateurs
+                <strong>bit-à-bit</strong> (<code>&amp;</code>, <code>|</code>, <code>^</code>,
+                <code>~</code>) qui appliquent des portes logiques indépendamment sur chaque bit de
+                vos variables.
+            </p>
+        </div>
+        <div class="markdown-alert markdown-alert-tip">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-light-bulb mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"
+                    ></path></svg
+                >Tip
+            </p>
+            <p>
+                <strong>Si c'est nouveau pour vous :</strong> voici un
+                <strong><a href="https://futiax.ovh/TPPA" id="rickroll-link">lien (très important)</a></strong> vers
+                une aide détaillée sur les opérateurs bitwise. (L'exemple est en JavaScript mais les
+                principes sont 100% identiques en C : vous y retrouverez tous les opérateurs
+                nécessaires dans le menu de droite). Ne restez pas bloqués sur la théorie !
+            </p>
+        </div>
+        <p>
+            L'algorithme MD5 repose sur quatre fonctions booléennes opérant bit à bit sur des mots
+            de 32 bits. À chaque &quot;ronde&quot; de l'algorithme, une fonction différente est
+            utilisée pour bien mélanger les données.
+        </p>
+        <p>
+            Voici leurs définitions mathématiques formelles, où
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mo>∧</mo></mrow
+                            ><annotation encoding="application/x-tex">\wedge</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span class="strut" style="height: 0.5556em"></span
+                        ><span class="mord">∧</span></span
+                    ></span
+                ></span
+            >
+            représente le ET logique,
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mo>∨</mo></mrow
+                            ><annotation encoding="application/x-tex">\vee</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span class="strut" style="height: 0.5556em"></span
+                        ><span class="mord">∨</span></span
+                    ></span
+                ></span
+            >
+            le OU,
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mo>⊕</mo></mrow
+                            ><annotation encoding="application/x-tex">\oplus</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span
+                            class="strut"
+                            style="height: 0.6667em; vertical-align: -0.0833em"
+                        ></span
+                        ><span class="mord">⊕</span></span
+                    ></span
+                ></span
+            >
+            le XOR exclusif, et
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mi mathvariant="normal">¬</mi></mrow
+                            ><annotation encoding="application/x-tex">\neg</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span class="strut" style="height: 0.4306em"></span
+                        ><span class="mord">¬</span></span
+                    ></span
+                ></span
+            >
+            la négation (je ne les ai pas inventés pour vous embêter, ce sont les vraies notations
+            juste au cas où pour votre culture générale):
+        </p>
+        <ul>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><mi>F</mi><mo stretchy="false">(</mo><mi>X</mi
+                                    ><mo separator="true">,</mo><mi>Y</mi><mo separator="true">,</mo
+                                    ><mi>Z</mi><mo stretchy="false">)</mo><mo>=</mo
+                                    ><mo stretchy="false">(</mo><mi>X</mi><mo>∧</mo><mi>Y</mi
+                                    ><mo stretchy="false">)</mo><mo>∨</mo><mo stretchy="false">(</mo
+                                    ><mi mathvariant="normal">¬</mi><mi>X</mi><mo>∧</mo><mi>Z</mi
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >F(X, Y, Z) = (X \wedge Y) \vee (\neg X \wedge Z)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.13889em">F</span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∨</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord">¬</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><mi>G</mi><mo stretchy="false">(</mo><mi>X</mi
+                                    ><mo separator="true">,</mo><mi>Y</mi><mo separator="true">,</mo
+                                    ><mi>Z</mi><mo stretchy="false">)</mo><mo>=</mo
+                                    ><mo stretchy="false">(</mo><mi>X</mi><mo>∧</mo><mi>Z</mi
+                                    ><mo stretchy="false">)</mo><mo>∨</mo><mo stretchy="false">(</mo
+                                    ><mi>Y</mi><mo>∧</mo><mi mathvariant="normal">¬</mi><mi>Z</mi
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >G(X, Y, Z) = (X \wedge Z) \vee (Y \wedge \neg Z)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal">G</span><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∨</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">¬</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><mi>H</mi><mo stretchy="false">(</mo><mi>X</mi
+                                    ><mo separator="true">,</mo><mi>Y</mi><mo separator="true">,</mo
+                                    ><mi>Z</mi><mo stretchy="false">)</mo><mo>=</mo><mi>X</mi
+                                    ><mo>⊕</mo><mi>Y</mi><mo>⊕</mo><mi>Z</mi></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >H(X, Y, Z) = X \oplus Y \oplus Z</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.08125em">H</span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span
+                                class="strut"
+                                style="height: 0.7667em; vertical-align: -0.0833em"
+                            ></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span
+                                class="strut"
+                                style="height: 0.7667em; vertical-align: -0.0833em"
+                            ></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 0.6833em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em"
+                                >Z</span
+                            ></span
+                        ></span
+                    ></span
+                >
+            </li>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><mi>I</mi><mo stretchy="false">(</mo><mi>X</mi
+                                    ><mo separator="true">,</mo><mi>Y</mi><mo separator="true">,</mo
+                                    ><mi>Z</mi><mo stretchy="false">)</mo><mo>=</mo><mi>Y</mi
+                                    ><mo>⊕</mo><mo stretchy="false">(</mo><mi>X</mi><mo>∨</mo
+                                    ><mi mathvariant="normal">¬</mi><mi>Z</mi
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >I(X, Y, Z) = Y \oplus (X \vee \neg Z)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">I</span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span
+                                class="strut"
+                                style="height: 0.7667em; vertical-align: -0.0833em"
+                            ></span
+                            ><span class="mord mathnormal" style="margin-right: 0.22222em">Y</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07847em">X</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∨</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">¬</span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">Z</span
+                            ><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+        </ul>
+        <p>
+            <strong>Travail à faire :</strong> Implémentez les fonctions
+            <code>uint32_t F(...)</code>, <code>G(...)</code>, <code>H(...)</code> et
+            <code>I(...)</code> dans votre fichier <code>tp.c</code>. Vous devez impérativement
+            utiliser les opérateurs bit-à-bit natifs du langage C (et non la force du pingouin).
+        </p>
+        <div class="markdown-alert markdown-alert-tip">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-light-bulb mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"
+                    ></path></svg
+                >Tip
+            </p>
+            <p>
+                <strong>Validation manuelle :</strong> Pour valider votre fonction <code>F</code>,
+                testez-la dans votre <code>main</code> avec les valeurs décimales
+                <code>X = 10</code>, <code>Y = 15</code> et <code>Z = 20</code>. Calculez le
+                résultat sur papier au préalable. Si votre programme renvoie un résultat inattendu,
+                n'hésitez pas à vérifier que vous utilisez bien les opérateurs
+                <strong>bit-à-bit</strong> (<code>&amp;</code>, <code>|</code>, <code>~</code>) et
+                non les opérateurs <strong>logiques</strong> (<code>&amp;&amp;</code>,
+                <code>||</code>, <code>!</code>). Prenez aussi le temps de relire les astuces des
+                exercices précédents, des phénomènes environnementaux magiques pourraient perturber
+                vos tests ! Et rappelez-vous que ce TP est pensé pour tester votre résilience face à
+                la banquise.
+            </p>
+        </div>
+        <h2 id="ii-le-cœur-de-lalgorithme-la-boucle-principale">
+            II. Le Cœur de l'Algorithme (La Boucle Principale)
+        </h2>
+        <p>
+            Nous allons traiter un bloc de données simplifié. L'état initial est composé de quatre
+            variables d'état (A, B, C, D) qu'Alexis utilise pour filtrer ses provisions.
+        </p>
+        <h3 id="exercice-3-transformation-de-bloc-le-mélangeur">
+            Exercice 3. Transformation de bloc (Le mélangeur)
+        </h3>
+        <p>
+            L'algorithme MD5 repose sur une structure itérative. Pour chaque bloc de 32 bits, nous
+            allons appliquer une série de transformations pour &quot;mélanger&quot; les données avec
+            les variables d'état <code>state[0..3]</code>. Comme nous sommes sur une architecture 32
+            bits, nous utilisons des variables de type <code>uint32_t</code>.
+        </p>
+        <p>
+            Pour que le hachage soit efficace et que chaque bit du bloc influence le résultat final,
+            nous allons effectuer <strong>4 sous-rondes</strong> consécutives dans la fonction
+            <code>void transform(uint32_t state[4], uint32_t block)</code>.
+        </p>
+        <h4 id="détail-dune-sous-ronde">Détail d'une sous-ronde</h4>
+        <p>
+            Chaque sous-ronde utilise une fonction non-linéaire différente et un décalage de bit
+            spécifique. Pour chaque tour, vous devez effectuer les opérations suivantes dans cet
+            ordre précis :
+        </p>
+        <ol>
+            <li>
+                <strong>Calcul de A</strong> : Additionnez à <code>state[0]</code> le résultat de la
+                fonction logique du tour (F, G, H ou I) appliquée sur les variables
+                <code>state[1], state[2], state[3]</code>, puis ajoutez la valeur du
+                <code>block</code>.
+            </li>
+            <li>
+                <strong>Rotation</strong> : Appliquez votre fonction <code>left_rotate</code> sur
+                <code>state[0]</code> avec le décalage <code>s</code> correspondant au tour.
+            </li>
+            <li>
+                <strong>Liaison</strong> : Ajoutez la valeur de <code>state[1]</code> au nouveau
+                <code>state[0]</code>.
+            </li>
+            <li>
+                <strong>Permutation circulaire</strong> : Pour préparer le tour suivant, les
+                variables &quot;tournent&quot; (comme une ronde de pingouins) :
+                <ul>
+                    <li>
+                        <code>temp = state[3]</code> avec <code>temp</code> une variable temporaire.
+                    </li>
+                    <li><code>state[3] = state[2]</code></li>
+                    <li><code>state[2] = state[1]</code></li>
+                    <li><code>state[1] = state[0]</code> (votre nouvelle valeur calculée)</li>
+                    <li><code>state[0] = temp</code></li>
+                </ul>
+            </li>
+        </ol>
+        <h4 id="paramètres-des-tours">Paramètres des tours</h4>
+        <p>Enchaînez les quatre calculs en utilisant ce tableau :</p>
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align: left">Tour</th>
+                    <th style="text-align: left">Fonction logique</th>
+                    <th style="text-align: left">Décalage (s)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: left"><strong>1</strong></td>
+                    <td style="text-align: left">F(B, C, D)</td>
+                    <td style="text-align: left">7</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left"><strong>2</strong></td>
+                    <td style="text-align: left">G(B, C, D)</td>
+                    <td style="text-align: left">12</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left"><strong>3</strong></td>
+                    <td style="text-align: left">H(B, C, D)</td>
+                    <td style="text-align: left">17</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left"><strong>4</strong></td>
+                    <td style="text-align: left">I(B, C, D)</td>
+                    <td style="text-align: left">42</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="markdown-alert markdown-alert-tip">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-light-bulb mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"
+                    ></path></svg
+                >Tip
+            </p>
+            <p>
+                Utilisez des variables locales <code>a, b, c, d</code> initialisées avec les valeurs
+                de <code>state</code> pour rendre votre code plus lisible avant de remettre les
+                résultats dans le tableau <code>state</code> à la toute fin.
+            </p>
+        </div>
+        <h2 id="iii-gestion-de-lintégrité-et-sécurité">III. Gestion de l'Intégrité et Sécurité</h2>
+        <h3 id="exercice-4-vérification-finale">Exercice 4. Vérification Finale</h3>
+        <p>Implémentez <code>bool check_integrity(const char* input)</code> qui :</p>
+        <ol>
+            <li>
+                <p>Vérifie que l'entrée est valide avec <code>is_input_safe</code></p>
+            </li>
+            <li>
+                <p>Initialise un état <code>state[4]</code> avec les valeurs suivantes :</p>
+                <ul>
+                    <li><code>state[0] = 0xE0427675</code></li>
+                    <li><code>state[1] = 0x0A224722</code></li>
+                    <li><code>state[2] = 0x0364F12</code></li>
+                    <li><code>state[3] = 0x10325476</code></li>
+                </ul>
+            </li>
+            <li>
+                <p>Parcourt le string <strong>par blocs de 4 bytes</strong>. Pour chaque bloc :</p>
+                <ul>
+                    <li>
+                        <p>
+                            Pour chaque byte <code>c</code> du bloc, placez-le au bon endroit dans
+                            le <code>uint32_t</code> avec :
+                        </p>
+                        <pre><code class="language-c"><span class="hljs-type">uint32_t</span> octet = (<span class="hljs-type">uint32_t</span>)c;
+<span class="hljs-type">uint32_t</span> decalage = j * <span class="hljs-number">8</span>;
+block |= octet &lt;&lt; decalage;
+</code></pre>
+                        <ul>
+                            <li>
+                                <code>(uint32_t)c</code> convertit le byte en entier 32 bits non
+                                signé
+                            </li>
+                            <li>
+                                <code>|=</code> accumule les bytes dans le bloc (<code>j=0</code> →
+                                bits 0-7, <code>j=1</code> → bits 8-15, ...)
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <p>Appelez <code>transform(state, block)</code> pour chaque bloc.</p>
+            </li>
+            <li>
+                <p>
+                    Retournez le résultat de <code>is_42</code> appliqué sur les
+                    <strong>8 bits de poids faible</strong> de <code>state[0]</code>.
+                </p>
+            </li>
+        </ol>
+        <pre><code class="language-c"><span class="hljs-type">bool</span> <span class="hljs-title function_">check_integrity</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* input)</span> {
+    <span class="hljs-comment">// À compléter</span>
+}
+</code></pre>
+        <div class="markdown-alert markdown-alert-note">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-info mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                    ></path></svg
+                >Note
+            </p>
+            <p>
+                Courage pour cette étape finale ! Si de faux rejets apparaissent, jetez un œil
+                perplexe sur les étranges règles de notre environnement &quot;Mascotte
+                Protégée&quot; (base 10, logique inversée) disséminées dans les notes. Ne perdez pas
+                le nord !
+            </p>
+        </div>
+        <hr />
+        <h2 id="iv-pause--guide-de-débogage">IV. Pause &amp; Guide de Débogage</h2>
+        <div class="markdown-alert markdown-alert-tip">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-light-bulb mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"
+                    ></path></svg
+                >Tip
+            </p>
+            <p>
+                <strong>INFO IMPORTANTE POUR LA SÉANCE :</strong> Puisque nous choyons beaucoup
+                Alexis, ce TP possède des subtilités farfelues (logiques inversées, bases
+                capricieuses). Au bout de 30 minutes ou 1 heure, si vous vous sentez bloqués dans
+                les glaces, n'hésitez pas à demander de l'aide.
+            </p>
+        </div>
+        <p>
+            Si le comportement s'inverse inexplicablement (vrai devient faux, faux devient vrai),
+            souvenez-vous que le complexe écosystème d'Alexis inflige une curieuse &quot;logique
+            CMOS inversée&quot;. L'astuce la plus poétique est d'inverser volontairement les valeurs
+            booléennes dans vos fonctions. Les mystères du froid sont parfois impénétrables !
+        </p>
+        <h2 id="v-bonus--cryptographie-moderne-sha-256">
+            V. Bonus : Cryptographie Moderne (SHA-256)
+        </h2>
+        <p>
+            Le MD5 étant aujourd'hui considéré comme obsolète face aux attaques de morses par
+            collision, les standards de sécurité modernes exigent l'utilisation de la famille SHA-2
+            (Secure Hash Algorithm 2). Nous allons implémenter la version 256 bits : le
+            <strong>SHA-256</strong>.
+        </p>
+        <p>
+            L'architecture globale ressemble à celle du MD5, mais introduit de nouvelles fonctions
+            de mélange et une mécanique d'extension du message beaucoup plus robuste.
+        </p>
+        <h3 id="exercice-5--la-rotation-droite-right-rotate">
+            Exercice 5 : La Rotation Droite (Right Rotate)
+        </h3>
+        <p>
+            Contrairement au MD5 qui tourne vers la gauche, le SHA-256 utilise majoritairement des
+            rotations circulaires vers la droite, notées
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mo>⋙</mo></mrow
+                            ><annotation encoding="application/x-tex">\ggg</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span
+                            class="strut"
+                            style="height: 0.585em; vertical-align: -0.0352em"
+                        ></span
+                        ><span class="mrel amsrm">⋙</span></span
+                    ></span
+                ></span
+            >.
+        </p>
+        <p>La formule mathématique pour une variable entière de 32 bits est :</p>
+        <p class="katex-block">
+            <span class="katex-display"
+                ><span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"
+                            ><semantics
+                                ><mrow
+                                    ><mi>R</mi><mi>O</mi><mi>T</mi><mi>R</mi
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo separator="true">,</mo
+                                    ><mi>s</mi><mo stretchy="false">)</mo><mo>=</mo
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo>≫</mo><mi>s</mi
+                                    ><mo stretchy="false">)</mo><mo>∨</mo><mo stretchy="false">(</mo
+                                    ><mi>x</mi><mo>≪</mo><mo stretchy="false">(</mo><mn>32</mn
+                                    ><mo>−</mo><mi>s</mi><mo stretchy="false">)</mo
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >ROTR(x, s) = (x \gg s) \lor (x \ll (32 - s))
+                                </annotation></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.00773em"
+                                >ROTR</span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal">s</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">≫</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal">s</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∨</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">≪</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord">32</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">−</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal">s</span
+                            ><span class="mclose">))</span></span
+                        ></span
+                    ></span
+                ></span
+            >
+        </p>
+        <p>
+            <strong>Travail à faire :</strong> Implémentez la fonction
+            <code>uint32_t right_rotate(uint32_t x, uint32_t s)</code>.
+        </p>
+        <div class="markdown-alert markdown-alert-caution">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-stop mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                    ></path></svg
+                >Caution
+            </p>
+            <p>
+                <strong>Alerte Climat :</strong> Dans la suite de ce bonus, vous allez devoir
+                utiliser des constantes de décalage très précises (comme 13, 22, ou 11). Ce
+                redoutable environnement de compilation (notre banquise numérique, le Makefile) est
+                impitoyable avec les entiers entrés &quot;simplement&quot; en base 10. Soyez malins
+                !
+            </p>
+        </div>
+        <h3 id="exercice-6--les-fonctions-logiques-du-sha-256">
+            Exercice 6 : Les Fonctions Logiques du SHA-256
+        </h3>
+        <p>
+            Le SHA-256 utilise un ensemble de 6 fonctions logiques. Elles opèrent toutes sur des
+            mots de 32 bits.
+        </p>
+        <p><strong>1. Les fonctions de choix et de majorité :</strong></p>
+        <ul>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><mi>C</mi><mi>h</mi><mo stretchy="false">(</mo><mi>E</mi
+                                    ><mo separator="true">,</mo><mi>F</mi><mo separator="true">,</mo
+                                    ><mi>G</mi><mo stretchy="false">)</mo><mo>=</mo
+                                    ><mo stretchy="false">(</mo><mi>E</mi><mo>∧</mo><mi>F</mi
+                                    ><mo stretchy="false">)</mo><mo>⊕</mo><mo stretchy="false">(</mo
+                                    ><mi mathvariant="normal">¬</mi><mi>E</mi><mo>∧</mo><mi>G</mi
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >Ch(E, F, G) = (E \wedge F) \oplus (\neg E \wedge G)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">C</span
+                            ><span class="mord mathnormal">h</span><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.13889em">F</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal">G</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.13889em">F</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord">¬</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal">G</span
+                            ><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><mi>M</mi><mi>a</mi><mo stretchy="false">(</mo><mi>A</mi
+                                    ><mo separator="true">,</mo><mi>B</mi><mo separator="true">,</mo
+                                    ><mi>C</mi><mo stretchy="false">)</mo><mo>=</mo
+                                    ><mo stretchy="false">(</mo><mi>A</mi><mo>∧</mo><mi>B</mi
+                                    ><mo stretchy="false">)</mo><mo>⊕</mo><mo stretchy="false">(</mo
+                                    ><mi>A</mi><mo>∧</mo><mi>C</mi><mo stretchy="false">)</mo
+                                    ><mo>⊕</mo><mo stretchy="false">(</mo><mi>B</mi><mo>∧</mo
+                                    ><mi>C</mi><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >Ma(A, B, C) = (A \wedge B) \oplus (A \wedge C) \oplus (B \wedge
+                                    C)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.10903em">M</span
+                            ><span class="mord mathnormal">a</span><span class="mopen">(</span
+                            ><span class="mord mathnormal">A</span><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.05017em">B</span
+                            ><span class="mpunct">,</span
+                            ><span class="mspace" style="margin-right: 0.1667em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">C</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">A</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.05017em">B</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">A</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">C</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05017em">B</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">∧</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">C</span
+                            ><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+        </ul>
+        <p>
+            <strong>2. Les fonctions de diffusion (Sigma majuscules) :</strong> Elles sont utilisées
+            dans la boucle principale pour brasser délicatement les bits des variables (parfait pour
+            l'oxygénation de l'eau).
+        </p>
+        <ul>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msub><mi mathvariant="normal">Σ</mi><mn>0</mn></msub
+                                    ><mo stretchy="false">(</mo><mi>A</mi><mo stretchy="false">)</mo
+                                    ><mo>=</mo><mo stretchy="false">(</mo><mi>A</mi><mo>⋙</mo
+                                    ><mn>2</mn><mo stretchy="false">)</mo><mo>⊕</mo
+                                    ><mo stretchy="false">(</mo><mi>A</mi><mo>⋙</mo><mn>13</mn
+                                    ><mo stretchy="false">)</mo><mo>⊕</mo><mo stretchy="false">(</mo
+                                    ><mi>A</mi><mo>⋙</mo><mn>22</mn
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >\Sigma_0(A) = (A \ggg 2) \oplus (A \ggg 13) \oplus (A \ggg
+                                    22)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord"
+                                ><span class="mord">Σ</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t vlist-t2"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.3011em"
+                                                ><span
+                                                    style="
+                                                        top: -2.55em;
+                                                        margin-left: 0em;
+                                                        margin-right: 0.05em;
+                                                    "
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mtight">0</span></span
+                                                    ></span
+                                                ></span
+                                            ><span class="vlist-s">​</span></span
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.15em"
+                                                ><span></span></span></span></span></span></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">A</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">A</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">2</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">A</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">13</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">A</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">22</span><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msub><mi mathvariant="normal">Σ</mi><mn>1</mn></msub
+                                    ><mo stretchy="false">(</mo><mi>E</mi><mo stretchy="false">)</mo
+                                    ><mo>=</mo><mo stretchy="false">(</mo><mi>E</mi><mo>⋙</mo
+                                    ><mn>6</mn><mo stretchy="false">)</mo><mo>⊕</mo
+                                    ><mo stretchy="false">(</mo><mi>E</mi><mo>⋙</mo><mn>11</mn
+                                    ><mo stretchy="false">)</mo><mo>⊕</mo><mo stretchy="false">(</mo
+                                    ><mi>E</mi><mo>⋙</mo><mn>25</mn
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >\Sigma_1(E) = (E \ggg 6) \oplus (E \ggg 11) \oplus (E \ggg
+                                    25)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord"
+                                ><span class="mord">Σ</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t vlist-t2"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.3011em"
+                                                ><span
+                                                    style="
+                                                        top: -2.55em;
+                                                        margin-left: 0em;
+                                                        margin-right: 0.05em;
+                                                    "
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mtight">1</span></span
+                                                    ></span
+                                                ></span
+                                            ><span class="vlist-s">​</span></span
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.15em"
+                                                ><span></span></span></span></span></span></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">6</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">11</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span
+                            ><span class="mord mathnormal" style="margin-right: 0.05764em">E</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">25</span><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+        </ul>
+        <p>
+            <strong>3. Les fonctions d'extension (sigma minuscules) :</strong> Elles servent à
+            préparer les données. Attention, le symbole
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mo>≫</mo></mrow
+                            ><annotation encoding="application/x-tex">\gg</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span
+                            class="strut"
+                            style="height: 0.5782em; vertical-align: -0.0391em"
+                        ></span
+                        ><span class="mrel">≫</span></span
+                    ></span
+                ></span
+            >
+            représente ici un décalage logique classique (et non une rotation) !
+        </p>
+        <ul>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msub><mi>σ</mi><mn>0</mn></msub
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo
+                                    ><mo>=</mo><mo stretchy="false">(</mo><mi>x</mi><mo>⋙</mo
+                                    ><mn>7</mn><mo stretchy="false">)</mo><mo>⊕</mo
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo>⋙</mo><mn>18</mn
+                                    ><mo stretchy="false">)</mo><mo>⊕</mo><mo stretchy="false">(</mo
+                                    ><mi>x</mi><mo>≫</mo><mn>3</mn><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >\sigma_0(x) = (x \ggg 7) \oplus (x \ggg 18) \oplus (x \gg
+                                    3)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord"
+                                ><span class="mord mathnormal" style="margin-right: 0.03588em"
+                                    >σ</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t vlist-t2"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.3011em"
+                                                ><span
+                                                    style="
+                                                        top: -2.55em;
+                                                        margin-left: -0.0359em;
+                                                        margin-right: 0.05em;
+                                                    "
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mtight">0</span></span
+                                                    ></span
+                                                ></span
+                                            ><span class="vlist-s">​</span></span
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.15em"
+                                                ><span></span></span></span></span></span></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">7</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">18</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">≫</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">3</span><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+            <li>
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msub><mi>σ</mi><mn>1</mn></msub
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo
+                                    ><mo>=</mo><mo stretchy="false">(</mo><mi>x</mi><mo>⋙</mo
+                                    ><mn>17</mn><mo stretchy="false">)</mo><mo>⊕</mo
+                                    ><mo stretchy="false">(</mo><mi>x</mi><mo>⋙</mo><mn>19</mn
+                                    ><mo stretchy="false">)</mo><mo>⊕</mo><mo stretchy="false">(</mo
+                                    ><mi>x</mi><mo>≫</mo><mn>10</mn
+                                    ><mo stretchy="false">)</mo></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >\sigma_1(x) = (x \ggg 17) \oplus (x \ggg 19) \oplus (x \gg
+                                    10)</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord"
+                                ><span class="mord mathnormal" style="margin-right: 0.03588em"
+                                    >σ</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t vlist-t2"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.3011em"
+                                                ><span
+                                                    style="
+                                                        top: -2.55em;
+                                                        margin-left: -0.0359em;
+                                                        margin-right: 0.05em;
+                                                    "
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mtight">1</span></span
+                                                    ></span
+                                                ></span
+                                            ><span class="vlist-s">​</span></span
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.15em"
+                                                ><span></span></span></span></span></span></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">17</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel amsrm">⋙</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">19</span><span class="mclose">)</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span
+                            ><span class="mbin">⊕</span
+                            ><span class="mspace" style="margin-right: 0.2222em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mopen">(</span><span class="mord mathnormal">x</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">≫</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span class="strut" style="height: 1em; vertical-align: -0.25em"></span
+                            ><span class="mord">10</span><span class="mclose">)</span></span
+                        ></span
+                    ></span
+                >
+            </li>
+        </ul>
+        <p>
+            <strong>Travail à faire :</strong> Implémentez ces 6 fonctions en C (<code>Ch</code>,
+            <code>Ma</code>, <code>Sigma0</code>, <code>Sigma1</code>, <code>sigma0_lower</code>,
+            <code>sigma1_lower</code>).
+        </p>
+        <h3 id="exercice-7--lextension-du-message-message-schedule">
+            Exercice 7 : L'Extension du Message (Message Schedule)
+        </h3>
+        <p>
+            Dans le MD5, le bloc de données d'entrée de 512 bits (seize mots de 32 bits) est
+            réutilisé tel quel à chaque tour. Le SHA-256, lui, &quot;étire&quot; ces seize mots pour
+            créer un tableau de 64 mots, noté
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mi>W</mi></mrow
+                            ><annotation encoding="application/x-tex">W</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span class="strut" style="height: 0.6833em"></span
+                        ><span class="mord mathnormal" style="margin-right: 0.13889em"
+                            >W</span
+                        ></span
+                    ></span
+                ></span
+            >.
+        </p>
+        <p>
+            <strong>Travail à faire :</strong> Écrivez une fonction ou un bloc de code qui prend un
+            tableau initial <code>uint32_t input_block[16]</code> et remplit un grand tableau
+            <code>uint32_t W[64]</code> en suivant cette règle :
+        </p>
+        <ol>
+            <li>
+                Pour
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow><mi>t</mi></mrow
+                                ><annotation encoding="application/x-tex">t</annotation></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 0.6151em"></span
+                            ><span class="mord mathnormal">t</span></span
+                        ></span
+                    ></span
+                >
+                allant de 0 à 15 :
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msub><mi>W</mi><mi>t</mi></msub
+                                    ><mo>=</mo><mi>i</mi><mi>n</mi><mi>p</mi><mi>u</mi><mi>t</mi
+                                    ><mi mathvariant="normal">_</mi><mi>b</mi><mi>l</mi><mi>o</mi
+                                    ><mi>c</mi><msub><mi>k</mi><mi>t</mi></msub></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >W_t = input\_block_t</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span
+                                class="strut"
+                                style="height: 0.8333em; vertical-align: -0.15em"
+                            ></span
+                            ><span class="mord"
+                                ><span class="mord mathnormal" style="margin-right: 0.13889em"
+                                    >W</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t vlist-t2"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.2806em"
+                                                ><span
+                                                    style="
+                                                        top: -2.55em;
+                                                        margin-left: -0.1389em;
+                                                        margin-right: 0.05em;
+                                                    "
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mathnormal mtight"
+                                                            >t</span
+                                                        ></span
+                                                    ></span
+                                                ></span
+                                            ><span class="vlist-s">​</span></span
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.15em"
+                                                ><span></span></span></span></span></span></span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span
+                            ><span class="mrel">=</span
+                            ><span class="mspace" style="margin-right: 0.2778em"></span></span
+                        ><span class="base"
+                            ><span
+                                class="strut"
+                                style="height: 1.0044em; vertical-align: -0.31em"
+                            ></span
+                            ><span class="mord mathnormal">in</span
+                            ><span class="mord mathnormal">p</span
+                            ><span class="mord mathnormal">u</span
+                            ><span class="mord mathnormal">t</span
+                            ><span class="mord" style="margin-right: 0.02778em">_</span
+                            ><span class="mord mathnormal">b</span
+                            ><span class="mord mathnormal" style="margin-right: 0.01968em">l</span
+                            ><span class="mord mathnormal">oc</span
+                            ><span class="mord"
+                                ><span class="mord mathnormal" style="margin-right: 0.03148em"
+                                    >k</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t vlist-t2"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.2806em"
+                                                ><span
+                                                    style="
+                                                        top: -2.55em;
+                                                        margin-left: -0.0315em;
+                                                        margin-right: 0.05em;
+                                                    "
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mathnormal mtight"
+                                                            >t</span
+                                                        ></span
+                                                    ></span
+                                                ></span
+                                            ><span class="vlist-s">​</span></span
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.15em"
+                                                ><span></span></span></span></span></span></span></span></span
+                ></span>
+            </li>
+            <li>
+                Pour
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow><mi>t</mi></mrow
+                                ><annotation encoding="application/x-tex">t</annotation></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 0.6151em"></span
+                            ><span class="mord mathnormal">t</span></span
+                        ></span
+                    ></span
+                >
+                allant de 16 à 63 :
+                <p class="katex-block">
+                    <span class="katex-display"
+                        ><span class="katex"
+                            ><span class="katex-mathml"
+                                ><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"
+                                    ><semantics
+                                        ><mrow
+                                            ><msub><mi>W</mi><mi>t</mi></msub
+                                            ><mo>=</mo><msub><mi>σ</mi><mn>1</mn></msub
+                                            ><mo stretchy="false">(</mo
+                                            ><msub
+                                                ><mi>W</mi
+                                                ><mrow><mi>t</mi><mo>−</mo><mn>2</mn></mrow></msub
+                                            ><mo stretchy="false">)</mo><mo>+</mo
+                                            ><msub
+                                                ><mi>W</mi
+                                                ><mrow><mi>t</mi><mo>−</mo><mn>7</mn></mrow></msub
+                                            ><mo>+</mo><msub><mi>σ</mi><mn>0</mn></msub
+                                            ><mo stretchy="false">(</mo
+                                            ><msub
+                                                ><mi>W</mi
+                                                ><mrow><mi>t</mi><mo>−</mo><mn>15</mn></mrow></msub
+                                            ><mo stretchy="false">)</mo><mo>+</mo
+                                            ><msub
+                                                ><mi>W</mi
+                                                ><mrow><mi>t</mi><mo>−</mo><mn>16</mn></mrow></msub
+                                            ></mrow
+                                        ><annotation encoding="application/x-tex"
+                                            >W_t = \sigma_1(W_{t-2}) + W_{t-7} + \sigma_0(W_{t-15})
+                                            + W_{t-16}
+                                        </annotation></semantics
+                                    ></math
+                                ></span
+                            ><span class="katex-html" aria-hidden="true"
+                                ><span class="base"
+                                    ><span
+                                        class="strut"
+                                        style="height: 0.8333em; vertical-align: -0.15em"
+                                    ></span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.13889em"
+                                            >W</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.2806em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.1389em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span
+                                                                    class="mord mathnormal mtight"
+                                                                    >t</span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.15em"
+                                                        ><span></span></span></span></span></span></span
+                                    ><span class="mspace" style="margin-right: 0.2778em"></span
+                                    ><span class="mrel">=</span
+                                    ><span
+                                        class="mspace"
+                                        style="margin-right: 0.2778em"
+                                    ></span></span
+                                ><span class="base"
+                                    ><span
+                                        class="strut"
+                                        style="height: 1em; vertical-align: -0.25em"
+                                    ></span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.03588em"
+                                            >σ</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.3011em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.0359em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span class="mord mtight"
+                                                                    >1</span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.15em"
+                                                        ><span></span></span></span></span></span></span
+                                    ><span class="mopen">(</span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.13889em"
+                                            >W</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.3011em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.1389em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span class="mord mtight"
+                                                                    ><span
+                                                                        class="mord mathnormal mtight"
+                                                                        >t</span
+                                                                    ><span class="mbin mtight"
+                                                                        >−</span
+                                                                    ><span class="mord mtight"
+                                                                        >2</span
+                                                                    ></span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.2083em"
+                                                        ><span></span></span></span></span></span></span
+                                    ><span class="mclose">)</span
+                                    ><span class="mspace" style="margin-right: 0.2222em"></span
+                                    ><span class="mbin">+</span
+                                    ><span
+                                        class="mspace"
+                                        style="margin-right: 0.2222em"
+                                    ></span></span
+                                ><span class="base"
+                                    ><span
+                                        class="strut"
+                                        style="height: 0.8917em; vertical-align: -0.2083em"
+                                    ></span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.13889em"
+                                            >W</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.3011em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.1389em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span class="mord mtight"
+                                                                    ><span
+                                                                        class="mord mathnormal mtight"
+                                                                        >t</span
+                                                                    ><span class="mbin mtight"
+                                                                        >−</span
+                                                                    ><span class="mord mtight"
+                                                                        >7</span
+                                                                    ></span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.2083em"
+                                                        ><span></span></span></span></span></span></span
+                                    ><span class="mspace" style="margin-right: 0.2222em"></span
+                                    ><span class="mbin">+</span
+                                    ><span
+                                        class="mspace"
+                                        style="margin-right: 0.2222em"
+                                    ></span></span
+                                ><span class="base"
+                                    ><span
+                                        class="strut"
+                                        style="height: 1em; vertical-align: -0.25em"
+                                    ></span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.03588em"
+                                            >σ</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.3011em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.0359em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span class="mord mtight"
+                                                                    >0</span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.15em"
+                                                        ><span></span></span></span></span></span></span
+                                    ><span class="mopen">(</span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.13889em"
+                                            >W</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.3011em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.1389em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span class="mord mtight"
+                                                                    ><span
+                                                                        class="mord mathnormal mtight"
+                                                                        >t</span
+                                                                    ><span class="mbin mtight"
+                                                                        >−</span
+                                                                    ><span class="mord mtight"
+                                                                        >15</span
+                                                                    ></span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.2083em"
+                                                        ><span></span></span></span></span></span></span
+                                    ><span class="mclose">)</span
+                                    ><span class="mspace" style="margin-right: 0.2222em"></span
+                                    ><span class="mbin">+</span
+                                    ><span
+                                        class="mspace"
+                                        style="margin-right: 0.2222em"
+                                    ></span></span
+                                ><span class="base"
+                                    ><span
+                                        class="strut"
+                                        style="height: 0.8917em; vertical-align: -0.2083em"
+                                    ></span
+                                    ><span class="mord"
+                                        ><span
+                                            class="mord mathnormal"
+                                            style="margin-right: 0.13889em"
+                                            >W</span
+                                        ><span class="msupsub"
+                                            ><span class="vlist-t vlist-t2"
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.3011em"
+                                                        ><span
+                                                            style="
+                                                                top: -2.55em;
+                                                                margin-left: -0.1389em;
+                                                                margin-right: 0.05em;
+                                                            "
+                                                            ><span
+                                                                class="pstrut"
+                                                                style="height: 2.7em"
+                                                            ></span
+                                                            ><span
+                                                                class="sizing reset-size6 size3 mtight"
+                                                                ><span class="mord mtight"
+                                                                    ><span
+                                                                        class="mord mathnormal mtight"
+                                                                        >t</span
+                                                                    ><span class="mbin mtight"
+                                                                        >−</span
+                                                                    ><span class="mord mtight"
+                                                                        >16</span
+                                                                    ></span
+                                                                ></span
+                                                            ></span
+                                                        ></span
+                                                    ><span class="vlist-s">​</span></span
+                                                ><span class="vlist-r"
+                                                    ><span class="vlist" style="height: 0.2083em"
+                                                        ><span></span></span></span></span></span></span></span></span></span
+                    ></span>
+                </p>
+            </li>
+        </ol>
+        <p>
+            <em
+                >(Rappel : les additions
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow><mo>+</mo></mrow
+                                ><annotation encoding="application/x-tex">+</annotation></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span
+                                class="strut"
+                                style="height: 0.6667em; vertical-align: -0.0833em"
+                            ></span
+                            ><span class="mord">+</span></span
+                        ></span
+                    ></span
+                >
+                se font modulo
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msup><mn>2</mn><mn>32</mn></msup></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >2^{32}</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 0.8141em"></span
+                            ><span class="mord"
+                                ><span class="mord">2</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.8141em"
+                                                ><span style="top: -3.063em; margin-right: 0.05em"
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mtight"
+                                                            ><span class="mord mtight"
+                                                                >32</span
+                                                            ></span
+                                                        ></span
+                                                    ></span
+                                                ></span
+                                            ></span
+                                        ></span
+                                    ></span
+                                ></span
+                            ></span
+                        ></span
+                    ></span
+                >, ce qui correspond à l'addition standard non signée en C).</em
+            >
+        </p>
+        <h3 id="exercice-8--la-boucle-de-compression-finale">
+            Exercice 8 : La Boucle de Compression Finale
+        </h3>
+        <p>
+            Le SHA-256 effectue 64 tours (au lieu de 4 sous-rondes pour notre Mini-MD5). À chaque
+            tour
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow><mi>t</mi></mrow
+                            ><annotation encoding="application/x-tex">t</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span class="strut" style="height: 0.6151em"></span
+                        ><span class="mord mathnormal">t</span></span
+                    ></span
+                ></span
+            >, l'algorithme utilise une constante
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow
+                                ><msub><mi>K</mi><mi>t</mi></msub></mrow
+                            ><annotation encoding="application/x-tex">K_t</annotation></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span
+                            class="strut"
+                            style="height: 0.8333em; vertical-align: -0.15em"
+                        ></span
+                        ><span class="mord"
+                            ><span class="mord mathnormal" style="margin-right: 0.07153em">K</span
+                            ><span class="msupsub"
+                                ><span class="vlist-t vlist-t2"
+                                    ><span class="vlist-r"
+                                        ><span class="vlist" style="height: 0.2806em"
+                                            ><span
+                                                style="
+                                                    top: -2.55em;
+                                                    margin-left: -0.0715em;
+                                                    margin-right: 0.05em;
+                                                "
+                                                ><span class="pstrut" style="height: 2.7em"></span
+                                                ><span class="sizing reset-size6 size3 mtight"
+                                                    ><span class="mord mathnormal mtight"
+                                                        >t</span
+                                                    ></span
+                                                ></span
+                                            ></span
+                                        ><span class="vlist-s">​</span></span
+                                    ><span class="vlist-r"
+                                        ><span class="vlist" style="height: 0.15em"
+                                            ><span></span></span></span></span></span></span></span></span
+            ></span>
+            issue des racines cubiques des 64 premiers nombres premiers (les constantes vous seront
+            fournies par votre encadrant ou sont trouvables dans le standard FIPS 180-4).
+        </p>
+        <p>
+            <strong
+                >Structure du tour
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow><mi>t</mi></mrow
+                                ><annotation encoding="application/x-tex">t</annotation></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 0.6151em"></span
+                            ><span class="mord mathnormal">t</span></span
+                        ></span
+                    ></span
+                >
+                (de 0 à 63) :</strong
+            >
+        </p>
+        <img src="./SHA-2.svg" />
+        <div class="markdown-alert markdown-alert-note">
+            <p class="markdown-alert-title">
+                <svg
+                    class="octicon octicon-info mr-2"
+                    viewBox="0 0 16 16"
+                    version="1.1"
+                    width="16"
+                    height="16"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"
+                    ></path></svg
+                >Note
+            </p>
+            <p>
+                <strong>Note :</strong> Le carrés rouge représentent la somme modulo
+                <span class="katex"
+                    ><span class="katex-mathml"
+                        ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                            ><semantics
+                                ><mrow
+                                    ><msup><mn>2</mn><mn>32</mn></msup></mrow
+                                ><annotation encoding="application/x-tex"
+                                    >2^{32}</annotation
+                                ></semantics
+                            ></math
+                        ></span
+                    ><span class="katex-html" aria-hidden="true"
+                        ><span class="base"
+                            ><span class="strut" style="height: 0.8141em"></span
+                            ><span class="mord"
+                                ><span class="mord">2</span
+                                ><span class="msupsub"
+                                    ><span class="vlist-t"
+                                        ><span class="vlist-r"
+                                            ><span class="vlist" style="height: 0.8141em"
+                                                ><span style="top: -3.063em; margin-right: 0.05em"
+                                                    ><span
+                                                        class="pstrut"
+                                                        style="height: 2.7em"
+                                                    ></span
+                                                    ><span class="sizing reset-size6 size3 mtight"
+                                                        ><span class="mord mtight"
+                                                            ><span class="mord mtight"
+                                                                >32</span
+                                                            ></span
+                                                        ></span
+                                                    ></span
+                                                ></span
+                                            ></span
+                                        ></span
+                                    ></span
+                                ></span
+                            ></span
+                        ></span
+                    ></span
+                >.
+            </p>
+        </div>
+        <p>
+            <strong>Travail à faire :</strong> Assemblez la fonction
+            <code>process_sha256_block(uint32_t state[8], uint32_t input_block[16])</code>.
+            N'oubliez pas qu'à la toute fin des 64 tours, vous devez additionner les variables
+            dynamiques
+            <span class="katex"
+                ><span class="katex-mathml"
+                    ><math xmlns="http://www.w3.org/1998/Math/MathML"
+                        ><semantics
+                            ><mrow
+                                ><mi>A</mi><mo separator="true">,</mo><mi>B</mi
+                                ><mo separator="true">,</mo><mo>…</mo><mo separator="true">,</mo
+                                ><mi>H</mi></mrow
+                            ><annotation encoding="application/x-tex"
+                                >A, B, \dots, H</annotation
+                            ></semantics
+                        ></math
+                    ></span
+                ><span class="katex-html" aria-hidden="true"
+                    ><span class="base"
+                        ><span
+                            class="strut"
+                            style="height: 0.8778em; vertical-align: -0.1944em"
+                        ></span
+                        ><span class="mord mathnormal">A</span><span class="mpunct">,</span
+                        ><span class="mspace" style="margin-right: 0.1667em"></span
+                        ><span class="mord mathnormal" style="margin-right: 0.05017em">B</span
+                        ><span class="mpunct">,</span
+                        ><span class="mspace" style="margin-right: 0.1667em"></span
+                        ><span class="minner">…</span
+                        ><span class="mspace" style="margin-right: 0.1667em"></span
+                        ><span class="mpunct">,</span
+                        ><span class="mspace" style="margin-right: 0.1667em"></span
+                        ><span class="mord mathnormal" style="margin-right: 0.08125em"
+                            >H</span
+                        ></span
+                    ></span
+                ></span
+            >
+            à l'état global <code>state[0..7]</code>.
+        </p>
+        <hr />
+        <h2 id="vi-double-bonus--voyage-vers-le-silicium">
+            VI. Double Bonus : Voyage vers le Silicium
+        </h2>
+        <p>
+            Si vous avez terminé le SHA-256 avec 1 heure d'avance (ce qui est le minimum syndical
+            pour un élève de MP2I correctement nourri aux sardines), votre ultime défi consiste à
+            re-fabriquer virtuellement l'ordinateur depuis la base !
+        </p>
+        <p>
+            <strong>Travail à faire (Nand Game) :</strong> Allez sur
+            <strong><a href="https://nandgame.com/">The Nand Game</a></strong> et complétez
+            l'intégralité du jeu jusqu'à construire un ordinateur fonctionnel, uniquement à partir
+            de portes NAND. (Une capture d'écran de l'ordinateur final est requise pour valider ce
+            bonus absurde). Bon courage, la survie numérique d'Alexis repose sur vos compétences en
+            intégration matérielle !
+        </p>
+
+        <script
+            async
+            src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"
+        ></script>
+
+        <main id="player">
+            <video id="video" src="video.webm" loop playsinline></video>
             <button id="skip-btn" class="skip-btn" type="button" hidden>Passer la pub (5)</button>
         </main>
 
