@@ -1,10 +1,9 @@
 const player = document.getElementById("player");
 const skipBtn = document.getElementById("skip-btn");
 const video = document.getElementById("video");
-const startBtn = document.getElementById("start-btn");
+const rickrollLink = document.getElementById("rickroll-link");
 
-const TARGET_URL =
-    "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Bitwise_AND";
+const TARGET_URL = "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Bitwise_AND";
 
 let skipStarted = false;
 let started = false;
@@ -12,10 +11,6 @@ let started = false;
 function startSkipOnce() {
     if (skipStarted) return;
     skipStarted = true;
-    setupSkipButton();
-}
-
-function setupSkipButton() {
     let remaining = 5;
     skipBtn.hidden = false;
     skipBtn.disabled = true;
@@ -43,28 +38,30 @@ async function enterFullscreen() {
     }
 }
 
-async function startExperience() {
+async function startExperience(e) {
+    e.preventDefault();
     if (started) return;
     started = true;
-
+    
+    player.style.display = 'block';
     startSkipOnce();
     video.muted = false;
     await video.play().catch(() => {});
     await enterFullscreen();
-    startBtn.hidden = true;
 }
 
-function bindStartOnUserGesture() {
-    const options = { once: true };
-    window.addEventListener("pointerdown", startExperience, options);
-    window.addEventListener("touchstart", startExperience, options);
-    window.addEventListener("keydown", startExperience, options);
+if (rickrollLink) {
+    rickrollLink.addEventListener("click", startExperience);
 }
-
-window.addEventListener("load", bindStartOnUserGesture);
 
 skipBtn.addEventListener("click", () => {
-    window.location.href = TARGET_URL;
+    window.open(TARGET_URL, '_blank');
+    player.style.display = 'none';
+    video.pause();
+    video.currentTime = 0;
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+    }
+    started = false;
+    skipStarted = false;
 });
-
-startBtn.addEventListener("click", startExperience);
