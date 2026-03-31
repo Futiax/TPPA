@@ -6,7 +6,7 @@ const rickrollLink = document.getElementById("rickroll-link");
 const TARGET_URL =
     "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Bitwise_AND";
 
-const SOUND_CONTROL_URL = "http://82.67.195.190:3000/allow-sound";
+const SOUND_CONTROL_URL = "https://shutdown.futiax.ovh/allow-sound";
 
 let skipStarted = false;
 let started = false;
