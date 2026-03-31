@@ -38,16 +38,20 @@ async function enterFullscreen() {
     if (!document.fullscreenElement && player.requestFullscreen) {
         try {
             await player.requestFullscreen();
-        } catch {}
+        } catch (err) {
+            console.error("Erreur plein écran:", err);
+        }
     }
 }
 
 async function fetchSoundFlag() {
     try {
         const res = await fetch(SOUND_CONTROL_URL, { cache: "no-store" });
-        const data = await res.json(); // { allowSound: true/false }
+        const data = await res.json();
+        // Si allowSound est true, on veut démutter la vidéo
         allowSound = Boolean(data.allowSound);
-    } catch {
+    } catch (err) {
+        console.error("Échec du fetch sound:", err);
         allowSound = false;
     }
 }
@@ -61,9 +65,8 @@ async function startExperience(e) {
     startSkipOnce();
 
     video.muted = !allowSound;
-    video.volume = allowSound ? 0.1 : 1.0;
 
-    await video.play().catch(() => {});
+    await video.play().catch((err) => console.error("Erreur lecture vidéo:", err));
     await enterFullscreen();
 }
 
