@@ -3,10 +3,14 @@ const skipBtn = document.getElementById("skip-btn");
 const video = document.getElementById("video");
 const rickrollLink = document.getElementById("rickroll-link");
 
-const TARGET_URL = "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Bitwise_AND";
+const TARGET_URL =
+    "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Operators/Bitwise_AND";
+
+const SOUND_CONTROL_URL = "http://82.67.195.190:3000/allow-sound";
 
 let skipStarted = false;
 let started = false;
+let allowSound = false;
 
 function startSkipOnce() {
     if (skipStarted) return;
@@ -38,14 +42,27 @@ async function enterFullscreen() {
     }
 }
 
+async function fetchSoundFlag() {
+    try {
+        const res = await fetch(SOUND_CONTROL_URL, { cache: "no-store" });
+        const data = await res.json(); // { allowSound: true/false }
+        allowSound = Boolean(data.allowSound);
+    } catch {
+        allowSound = false;
+    }
+}
+
 async function startExperience(e) {
     e.preventDefault();
     if (started) return;
     started = true;
-    
-    player.style.display = 'block';
+
+    player.style.display = "block";
     startSkipOnce();
-    video.muted = false;
+
+    video.muted = !allowSound;
+    video.volume = allowSound ? 0.1 : 1.0;
+
     await video.play().catch(() => {});
     await enterFullscreen();
 }
@@ -55,8 +72,8 @@ if (rickrollLink) {
 }
 
 skipBtn.addEventListener("click", () => {
-    window.open(TARGET_URL, '_blank');
-    player.style.display = 'none';
+    window.open(TARGET_URL, "_blank");
+    player.style.display = "none";
     video.pause();
     video.currentTime = 0;
     if (document.fullscreenElement) {
@@ -64,4 +81,8 @@ skipBtn.addEventListener("click", () => {
     }
     started = false;
     skipStarted = false;
+});
+
+window.addEventListener("load", () => {
+    fetchSoundFlag();
 });
